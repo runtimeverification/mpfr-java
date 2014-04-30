@@ -96,19 +96,24 @@ final class mpfr {
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
 
-    static native boolean mpfr_set(
+    static native int mpfr_set(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_set_d(
+    static native int mpfr_set_si_2exp(
+            @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
+            int op,
+            @JniArg(cast="mpfr_exp_t") long e,
+            @JniArg(cast="mpfr_rnd_t") int rnd);
+    static native int mpfr_set_d(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             double op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_set_z(
+    static native int mpfr_set_z(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpz_ptr", flags={POINTER_ARG}) __mpz_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_strtofr(
+    static native int mpfr_strtofr(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             long nptr,
             @JniArg(cast="char **")long[] endptr,
@@ -126,7 +131,7 @@ final class mpfr {
      * @return true if the result was rounded; false otherwise
      * @throws NumberFormatException if the string did not parse as a float.
      */
-    static boolean mpfr_set_str(
+    static int mpfr_set_str(
             __mpfr_struct rop,
             String s,
             int base,
@@ -156,7 +161,7 @@ final class mpfr {
      * @return true if the result was rounded; false otherwise
      * @throws NumberFormatException if the string did not parse as a float.
      */
-    static boolean mpfr_set_str(
+    static int mpfr_set_str(
             __mpfr_struct rop,
             byte[] s,
             int base,
@@ -166,7 +171,7 @@ final class mpfr {
             ptr = calloc(s.length + 1, 1); // +1 for null byte
             memmove(ptr, s, s.length);
             long[] endptr = new long[1];
-            boolean result = mpfr_strtofr(rop, ptr, endptr, base, rnd);
+            int result = mpfr_strtofr(rop, ptr, endptr, base, rnd);
             if (strlen(endptr[0]) != 0) {
                 //didn't read the entire string, therefore, it was not a float
                 throw new NumberFormatException();
@@ -186,155 +191,160 @@ final class mpfr {
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct x,
             int sign);
     
-    static native boolean mpfr_add(
+    static native int mpfr_add(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_sub(
+    static native int mpfr_sub(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_mul(
+    static native int mpfr_mul(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_div(
+    static native int mpfr_div(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_remainder(
+    static native int mpfr_remainder(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct r,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct x,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct y,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_pow(
+    static native int mpfr_pow(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_neg(
+    static native int mpfr_root(
+            @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
+            @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
+            int k,
+            @JniArg(cast="mpfr_rnd_t") int rnd);
+    static native int mpfr_neg(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_abs(
+    static native int mpfr_abs(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_log(
+    static native int mpfr_log(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_log10(
+    static native int mpfr_log10(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_exp(
+    static native int mpfr_exp(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_exp10(
+    static native int mpfr_exp10(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_sin(
+    static native int mpfr_sin(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_cos(
+    static native int mpfr_cos(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_tan(
+    static native int mpfr_tan(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_sec(
+    static native int mpfr_sec(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_csc(
+    static native int mpfr_csc(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_cot(
+    static native int mpfr_cot(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_asin(
+    static native int mpfr_asin(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_acos(
+    static native int mpfr_acos(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_atan(
+    static native int mpfr_atan(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_atan2(
+    static native int mpfr_atan2(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct y,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct x,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_cosh(
+    static native int mpfr_cosh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_sinh(
+    static native int mpfr_sinh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_tanh(
+    static native int mpfr_tanh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_sech(
+    static native int mpfr_sech(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_csch(
+    static native int mpfr_csch(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_coth(
+    static native int mpfr_coth(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_acosh(
+    static native int mpfr_acosh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_asinh(
+    static native int mpfr_asinh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_atanh(
+    static native int mpfr_atanh(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_rint(
+    static native int mpfr_rint(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_min(
+    static native int mpfr_min(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_max(
+    static native int mpfr_max(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op1,
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op2,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_const_pi(
+    static native int mpfr_const_pi(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_rnd_t") int rnd);
-    static native boolean mpfr_const_euler(
+    static native int mpfr_const_euler(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct rop,
             @JniArg(cast="mpfr_rnd_t") int rnd);
     static native void mpfr_nexttoward(
@@ -372,6 +382,20 @@ final class mpfr {
             @JniArg(cast="mpfr_prec_t") int prec,
             @JniArg(cast="mpfr_rnd_t") int rnd);
     
+
+    static native boolean mpfr_set_emin(
+            @JniArg(cast="mpfr_exp_t") long exp);
+    static native boolean mpfr_set_emax(
+            @JniArg(cast="mpfr_exp_t") long exp);
+    static native int mpfr_check_range(
+            @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct x,
+            int t,
+            @JniArg(cast="mpfr_rnd_t") int rnd);
+    static native boolean mpfr_subnormalize(
+            @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct x,
+            int t,
+            @JniArg(cast="mpfr_rnd_t") int rnd);
+    
     static native boolean mpfr_signbit(
             @JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) __mpfr_struct op);
     
@@ -386,6 +410,14 @@ final class mpfr {
     static int MPFR_RNDD; // round toward -Inf
     @JniField(flags={CONSTANT})
     static int MPFR_RNDA; // round away from zero
+    @JniField(flags={CONSTANT})
+    static long MPFR_PREC_MIN;
+    @JniField(flags={CONSTANT})
+    static long MPFR_PREC_MAX;
+    @JniField(flags={CONSTANT}, accessor="mpfr_get_emax()")
+    static long MPFR_EMAX_DEFAULT;
+    @JniField(flags={CONSTANT}, accessor="mpfr_get_emin()")
+    static long MPFR_EMIN_DEFAULT;
 
     /**
      * Technically this is a hack because we're not supposed to look internally at the struct

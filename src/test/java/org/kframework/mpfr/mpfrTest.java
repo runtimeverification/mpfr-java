@@ -4,6 +4,7 @@ package org.kframework.mpfr;
 import static org.junit.Assert.*;
 
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import org.junit.Test;
 import static org.kframework.mpfr.mpfr.*;
@@ -19,8 +20,8 @@ public class mpfrTest {
     @Test
     public void testSetStrValid() {
         __mpfr_struct x = new __mpfr_struct(24);
-        boolean rounded = mpfr_set_str(x, "0.5", 10, MPFR_RNDN);
-        assertFalse(rounded);
+        int rounded = mpfr_set_str(x, "0.5", 10, MPFR_RNDN);
+        assertEquals(0, rounded);
     }
     
     @Test(expected=NumberFormatException.class)
@@ -38,8 +39,8 @@ public class mpfrTest {
     @Test
     public void testSetStrRounded() {
         __mpfr_struct x = new __mpfr_struct(24);
-        boolean rounded = mpfr_set_str(x, "0.2", 10, MPFR_RNDN);
-        assertTrue(rounded);
+        int rounded = mpfr_set_str(x, "0.2", 10, MPFR_RNDN);
+        assertNotEquals(0, rounded);
     }
     
     @Test
@@ -66,5 +67,17 @@ public class mpfrTest {
         assertEquals("-1", mpz_get_str(10, x));
         x = new __mpz_struct(new BigInteger("9223372036854775808"));
         assertEquals("9223372036854775808", mpz_get_str(10, x));
+    }
+    
+    @Test
+    public void testExponentRounding() {
+        __mpfr_struct x = new __mpfr_struct(24);
+        int ternary = mpfr_set_d(x, 1.0, MPFR_RNDN);
+        assertEquals(0, ternary);
+        ternary = mpfr_abs(x, x, MPFR_RNDN);
+        assertEquals(0, ternary);
+        boolean rounded = BigFloat.roundExponent(ternary, x, 
+                new BinaryMathContext(24, MPFR_EMIN_DEFAULT, MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
+        assertFalse(rounded);
     }
 }

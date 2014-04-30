@@ -2,7 +2,6 @@
 package org.kframework.mpfr;
 
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.kframework.mpfr.mpfr.__mpfr_struct;
@@ -10,7 +9,19 @@ import org.kframework.mpfr.mpfr.__mpfr_struct;
 import static org.kframework.mpfr.mpfr.*;
 
 public class BigFloat extends Number implements Comparable<BigFloat> {
-
+    
+    public static BigFloat maxValue(int precision, long emax) {
+        return positiveInfinity(precision).nextDown(-1, emax);
+    }
+    
+    public static BigFloat minNormal(int precision, long emin) {
+        return zero(precision).nextUp(emin + precision - 1, 1);
+    }
+    
+    public static BigFloat minValue(int precision, long emin) {
+        return zero(precision).nextUp(emin, 1);
+    }
+    
     /**
      * The value 0, with the specified precision.
      */
@@ -58,13 +69,12 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     /**
      * The value Pi, with rounding according to the context settings.
      */
-    public static BigFloat pi(MathContext mc) {
+    public static BigFloat pi(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
-                mpfr_const_pi(rop, rnd);
-                return true; //pi always requires rounding
+            public int doIt(__mpfr_struct rop, int rnd) {
+                return mpfr_const_pi(rop, rnd);
             }
         }.execute(mc);
     }
@@ -72,25 +82,21 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     /**
      * The value Pi, with rounding according to the context settings.
      */
-    public static BigFloat e(MathContext mc) {
+    public static BigFloat e(BinaryMathContext mc) {
         return new BigFloat(1, mc).exp(mc);
     }
-    
-    public static final MathContext BINARY32 = new MathContext(24, RoundingMode.HALF_EVEN);
-    public static final MathContext BINARY64 = new MathContext(53, RoundingMode.HALF_EVEN);
-    public static final MathContext BINARY128 = new MathContext(113, RoundingMode.HALF_EVEN);
     
     private __mpfr_struct op;
 
     /**
      * Translates a C character array representation of a {@code BigFloat} into a
      * {@code BigFloat}, accepting the same sequence of characters as the 
-     * {@link #BigFloat(String, MathContext)} constructor and with rounding according
+     * {@link #BigFloat(String, BinaryMathContext)} constructor and with rounding according
      * to the context settings.
      * 
      * Note that if the sequence of characters is already available as a byte array,
      * using this constructor is faster than converting the {@code byte} array to
-     * string and using the {@link #BigFloat(String, MathContext)} constructor.
+     * string and using the {@link #BigFloat(String, BinaryMathContext)} constructor.
      * @param in {@code byte} array that is the source of characters.
      * @param mc the context to use.
      * @throws ArithmeticException if the result is inexact but the rounding mode is
@@ -100,9 +106,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @throws NumberFormatException if {@code in} is not a valid representation of a
      * {@code BigFloat}.
      */
-    public BigFloat(byte[] in, MathContext mc) {
+    public BigFloat(byte[] in, BinaryMathContext mc) {
         op = new __mpfr_struct(mc.getPrecision());
-        boolean rounded = mpfr_set_str(op, in, 0, convertRoundingMode(mc.getRoundingMode()));
+        int ternary = mpfr_set_str(op, in, 0, convertRoundingMode(mc.getRoundingMode()));
+        boolean rounded = roundExponent(ternary, op, mc);
         throwArithmeticException(rounded, mc);
     }
     
@@ -123,9 +130,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @throws NumberFormatException if {@code val} is not a valid representation of a
      * {@code BigFloat}.
      */
-    public BigFloat(String in, MathContext mc) {
+    public BigFloat(String in, BinaryMathContext mc) {
         op = new __mpfr_struct(mc.getPrecision());
-        boolean rounded = mpfr_set_str(op, in, 0, convertRoundingMode(mc.getRoundingMode()));
+        int ternary = mpfr_set_str(op, in, 0, convertRoundingMode(mc.getRoundingMode()));
+        boolean rounded = roundExponent(ternary, op, mc);
         throwArithmeticException(rounded, mc);
     }
     
@@ -140,9 +148,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @throws IllegalArgumentException if the specified rounding mode is not supported
      * (i.e. HALF_UP or HALF_DOWN), or if the precision is less than 2
      */
-    public BigFloat(double val, MathContext mc) {
+    public BigFloat(double val, BinaryMathContext mc) {
         op = new __mpfr_struct(mc.getPrecision());
-        boolean rounded = mpfr_set_d(op, val, convertRoundingMode(mc.getRoundingMode()));
+        int ternary = mpfr_set_d(op, val, convertRoundingMode(mc.getRoundingMode()));
+        boolean rounded = roundExponent(ternary, op, mc);
         throwArithmeticException(rounded, mc);
     }
     
@@ -158,9 +167,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @throws IllegalArgumentException if the specified rounding mode is not supported
      * (i.e. HALF_UP or HALF_DOWN), or if the precision is less than 2
      */
-    public BigFloat(BigInteger val, MathContext mc) {
+    public BigFloat(BigInteger val, BinaryMathContext mc) {
         op = new __mpfr_struct(mc.getPrecision());
-        boolean rounded = mpfr_set_z(op, new __mpz_struct(val), convertRoundingMode(mc.getRoundingMode()));
+        int ternary = mpfr_set_z(op, new __mpz_struct(val), convertRoundingMode(mc.getRoundingMode()));
+        boolean rounded = roundExponent(ternary, op, mc);
         throwArithmeticException(rounded, mc);
     }
     
@@ -176,7 +186,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @throws IllegalArgumentException if the specified rounding mode is not supported
      * (i.e. HALF_UP or HALF_DOWN), or if the precision is less than 2
      */
-    public BigFloat(long val, MathContext mc) {
+    public BigFloat(long val, BinaryMathContext mc) {
         // mpfr doesn't have a mpfr_set_ll (for long long), so we need to convert to BigInteger first.
         this(BigInteger.valueOf(val), mc);
     }
@@ -200,8 +210,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return toBigInteger().byteValue();
     }
     
-    private static final BigFloat byteMaxValue = new BigFloat(Byte.MAX_VALUE, BINARY64);
-    private static final BigFloat byteMinValue = new BigFloat(Byte.MIN_VALUE, BINARY64);
+    private static final BigFloat byteMaxValue = new BigFloat(Byte.MAX_VALUE, BinaryMathContext.BINARY64);
+    private static final BigFloat byteMinValue = new BigFloat(Byte.MIN_VALUE, BinaryMathContext.BINARY64);
     
     public byte byteValueExact() {
         if (mpfr_nan_p(op) || mpfr_inf_p(op) || !mpfr_integer_p(op)
@@ -295,8 +305,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return toBigInteger().intValue();
     }
     
-    private static final BigFloat intMaxValue = new BigFloat(Integer.MAX_VALUE, BINARY64);
-    private static final BigFloat intMinValue = new BigFloat(Integer.MIN_VALUE, BINARY64);
+    private static final BigFloat intMaxValue = new BigFloat(Integer.MAX_VALUE, BinaryMathContext.BINARY64);
+    private static final BigFloat intMinValue = new BigFloat(Integer.MIN_VALUE, BinaryMathContext.BINARY64);
     
     public int intValueExact() {
         if (mpfr_nan_p(op) || mpfr_inf_p(op) || !mpfr_integer_p(op)
@@ -380,8 +390,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return toBigInteger().longValue();
     }
 
-    private static final BigFloat longMaxValue = new BigFloat(Long.MAX_VALUE, BINARY128);
-    private static final BigFloat longMinValue = new BigFloat(Long.MIN_VALUE, BINARY128);
+    private static final BigFloat longMaxValue = new BigFloat(Long.MAX_VALUE, BinaryMathContext.BINARY128);
+    private static final BigFloat longMinValue = new BigFloat(Long.MIN_VALUE, BinaryMathContext.BINARY128);
     
     public long longValueExact() {
         if (mpfr_nan_p(op) || mpfr_inf_p(op) || !mpfr_integer_p(op)
@@ -407,8 +417,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return toBigInteger().shortValue();
     }
 
-    private static final BigFloat shortMaxValue = new BigFloat(Short.MAX_VALUE, BINARY64);
-    private static final BigFloat shortMinValue = new BigFloat(Short.MIN_VALUE, BINARY64);
+    private static final BigFloat shortMaxValue = new BigFloat(Short.MAX_VALUE, BinaryMathContext.BINARY64);
+    private static final BigFloat shortMinValue = new BigFloat(Short.MIN_VALUE, BinaryMathContext.BINARY64);
     
     public short shortValueExact() {
         if (mpfr_nan_p(op) || mpfr_inf_p(op) || !mpfr_integer_p(op)
@@ -424,7 +434,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     }
     
     public long exponent() {
-        return op._mpfr_exp;
+        if (isNaN() || isInfinite() || isPositiveZero() || isNegativeZero()) {
+            throw new ArithmeticException("IEEE exponent would depend on exponent range");
+        }
+        return op._mpfr_exp - 1;
     }
     
     public boolean isNaN() {
@@ -453,10 +466,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     }
     
 
-    public static BigFloat valueOf(long val, MathContext mc) {
+    public static BigFloat valueOf(long val, BinaryMathContext mc) {
         return new BigFloat(val, mc);
     }
-    public static BigFloat valueOf(double val, MathContext mc) {
+    public static BigFloat valueOf(double val, BinaryMathContext mc) {
         return new BigFloat(val, mc);
     }
     
@@ -550,7 +563,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         }
     }
     
-    private static void throwArithmeticException(boolean rounded, MathContext mc) {
+    private static void throwArithmeticException(boolean rounded, BinaryMathContext mc) {
         if (rounded && mc.getRoundingMode() == RoundingMode.UNNECESSARY) {
             throw new ArithmeticException("rounding necessary");
         }
@@ -558,99 +571,133 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
 
     //TODO(dwightguth): fix with Java 8 and lambdas
     private static abstract class Operation {
-        public abstract boolean doIt(__mpfr_struct rop, int rnd);
+        public abstract int doIt(__mpfr_struct rop, int rnd);
         
-        public BigFloat execute(MathContext mc) {
+        public BigFloat execute(BinaryMathContext mc) {
             __mpfr_struct rop = new __mpfr_struct(mc.getPrecision());
-            boolean rounded = doIt(rop, convertRoundingMode(mc.getRoundingMode()));
+            int ternary = doIt(rop, convertRoundingMode(mc.getRoundingMode()));
+            boolean rounded = roundExponent(ternary, rop, mc);
             throwArithmeticException(rounded, mc);
             return new BigFloat(rop);
         }
     }
     
-    public BigFloat add(final BigFloat augend, MathContext mc) {
+    static boolean roundExponent(int ternary, __mpfr_struct x, BinaryMathContext mc) {
+        try {
+            setExponentRange(mc.getMinExponent(), mc.getMaxExponent(), mc.getPrecision());
+            ternary = mpfr_check_range(x, ternary, convertRoundingMode(mc.getRoundingMode()));
+            boolean rounded = mpfr_subnormalize(x, ternary, convertRoundingMode(mc.getRoundingMode()));
+            return rounded;
+        } finally {
+            resetExponentRange();
+        }
+    }
+
+    private static void resetExponentRange() {
+        boolean failed = mpfr_set_emin(MPFR_EMIN_DEFAULT);
+        failed |= mpfr_set_emax(MPFR_EMAX_DEFAULT);
+        assert !failed : "unexpected failure resetting exponent range";
+    }
+
+    private static void setExponentRange(long emin, long emax, int precision) {
+        if (emin < MPFR_EMIN_DEFAULT || emax > MPFR_EMAX_DEFAULT) {
+            throw new ArithmeticException("invalid exponent range");
+        }
+        emin = emin - precision + 2;
+        emax = emax + 1;
+        boolean failed = mpfr_set_emin(emin);
+        failed |= mpfr_set_emax(emax);
+        if (failed) {
+            resetExponentRange();
+            throw new ArithmeticException("invalid exponent range for specified precision");
+        }
+    }
+    
+    public BigFloat add(final BigFloat augend, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_add(rop, op, augend.op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat subtract(final BigFloat subtrahend, MathContext mc) {
+    public BigFloat subtract(final BigFloat subtrahend, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_sub(rop, op, subtrahend.op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat multiply(final BigFloat multiplicand, MathContext mc) {
+    public BigFloat multiply(final BigFloat multiplicand, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_mul(rop, op, multiplicand.op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat divide(final BigFloat divisor, MathContext mc) {
+    public BigFloat divide(final BigFloat divisor, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_div(rop, op, divisor.op, rnd);
             }
         }.execute(mc);
     }
 
-    public BigFloat remainder(final BigFloat divisor, MathContext mc) {
+    public BigFloat remainder(final BigFloat divisor, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_remainder(rop, op, divisor.op, rnd);
             }
         }.execute(mc);
     }
 
-    public BigFloat pow(final BigFloat n, MathContext mc) {
+    public BigFloat pow(final BigFloat n, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_pow(rop, op, n.op, rnd);
             }
         }.execute(mc);
     }
     
     public BigFloat abs() {
-        return abs(new MathContext(precision(), RoundingMode.UNNECESSARY));
+        return abs(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
+                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
     }
 
-    public BigFloat abs(MathContext mc) {
+    public BigFloat abs(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_abs(rop, op, rnd);
             }
         }.execute(mc);
     }
     
     public BigFloat negate() {
-        return negate(new MathContext(precision(), RoundingMode.UNNECESSARY));
+        return negate(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
+                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
     }
 
-    public BigFloat negate(MathContext mc) {
+    public BigFloat negate(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_neg(rop, op, rnd);
             }
         }.execute(mc);
@@ -660,7 +707,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return this;
     }
     
-    public BigFloat plus(MathContext mc) {
+    public BigFloat plus(BinaryMathContext mc) {
         return round(mc);
     }
     
@@ -674,301 +721,336 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         return 1.0;
     }
 
-    public BigFloat round(MathContext mc) {
+    public BigFloat round(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_set(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat sin(MathContext mc) {
+    public BigFloat sin(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_sin(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat cos(MathContext mc) {
+    public BigFloat cos(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_cos(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat sec(MathContext mc) {
+    public BigFloat sec(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_sec(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat csc(MathContext mc) {
+    public BigFloat csc(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_csc(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat cot(MathContext mc) {
+    public BigFloat cot(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_cot(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat tan(MathContext mc) {
+    public BigFloat tan(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_tan(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat asin(MathContext mc) {
+    public BigFloat asin(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_asin(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat acos(MathContext mc) {
+    public BigFloat acos(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_acos(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat atan(MathContext mc) {
+    public BigFloat atan(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_atan(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public static BigFloat atan2(final BigFloat y, final BigFloat x, MathContext mc) {
+    public static BigFloat atan2(final BigFloat y, final BigFloat x, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_atan2(rop, y.op, x.op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat sinh(MathContext mc) {
+    public BigFloat sinh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_sinh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat cosh(MathContext mc) {
+    public BigFloat cosh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_cosh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat tanh(MathContext mc) {
+    public BigFloat tanh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_tanh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat sech(MathContext mc) {
+    public BigFloat sech(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_sech(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat csch(MathContext mc) {
+    public BigFloat csch(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_csch(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat coth(MathContext mc) {
+    public BigFloat coth(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_coth(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat asinh(MathContext mc) {
+    public BigFloat asinh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_asinh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat acosh(MathContext mc) {
+    public BigFloat acosh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_acosh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat atanh(MathContext mc) {
+    public BigFloat atanh(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_atanh(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat exp(MathContext mc) {
+    public BigFloat exp(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_exp(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat exp10(MathContext mc) {
+    public BigFloat exp10(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_exp10(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat log(MathContext mc) {
+    public BigFloat log(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_log(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat log10(MathContext mc) {
+    public BigFloat log10(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_log10(rop, op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat rint(MathContext mc) {
+    public BigFloat rint(BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_rint(rop, op, rnd);
             }
         }.execute(mc);
     }
     
     public BigFloat ceil() {
-        return rint(new MathContext(precision(), RoundingMode.CEILING));
+        return rint(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
+                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.CEILING));
     }
     
     public BigFloat floor() {
-        return rint(new MathContext(precision(), RoundingMode.FLOOR));
+        return rint(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
+                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.FLOOR));
     }
     
-    public static BigFloat max(final BigFloat a, final BigFloat b, MathContext mc) {
+    public static BigFloat max(final BigFloat a, final BigFloat b, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_max(rop, a.op, b.op, rnd);
             }
         }.execute(mc);
     }
     
-    public static BigFloat min(final BigFloat a, final BigFloat b, MathContext mc) {
+    public static BigFloat min(final BigFloat a, final BigFloat b, BinaryMathContext mc) {
         return new Operation() {
             
             @Override
-            public boolean doIt(__mpfr_struct rop, int rnd) {
+            public int doIt(__mpfr_struct rop, int rnd) {
                 return mpfr_min(rop, a.op, b.op, rnd);
             }
         }.execute(mc);
     }
     
-    public BigFloat nextAfter(BigFloat direction) {
-        __mpfr_struct rop = new __mpfr_struct(precision());
-        mpfr_nexttoward(rop, op);
-        return new BigFloat(rop);
+    public BigFloat nextAfter(BigFloat direction, long emin, long emax) {
+        if(eq(direction)) {
+            return direction;
+        }
+        if (lt(direction)) {
+            return nextUp(emin, emax);
+        }
+        if (gt(direction)) {
+            return nextDown(emin, emax);
+        }
+        if (direction.isNaN()) {
+            return direction;
+        }
+        assert isNaN() : "this should only be reachable if this is NaN";
+        return this;
     }
     
-    public BigFloat nextUp(BigFloat direction) {
+    public BigFloat nextUp(long emin, long emax) {
         __mpfr_struct rop = new __mpfr_struct(precision());
-        mpfr_nextabove(rop);
-        return new BigFloat(rop);
+        int ternary = mpfr_set(rop, op, MPFR_RNDN);
+        try {
+            setExponentRange(emin, emax, precision());
+            ternary = mpfr_check_range(rop, ternary, MPFR_RNDN);
+            if (ternary != 0) {
+                //cannot represent this BigFloat in the provided exponent range
+                throw new ArithmeticException("the specified BigFloat is not in the provided exponent range");
+            }
+            mpfr_nextabove(rop);
+            mpfr_subnormalize(rop, 0, MPFR_RNDN);
+            return new BigFloat(rop);
+        } finally {
+            resetExponentRange();
+        }
     }
     
-    public BigFloat nextDown(BigFloat direction) {
+    public BigFloat nextDown(long emin, long emax) {
         __mpfr_struct rop = new __mpfr_struct(precision());
-        mpfr_nextbelow(rop);
-        return new BigFloat(rop);
+        int ternary = mpfr_set(rop, op, MPFR_RNDN);
+        try {
+            setExponentRange(emin, emax, precision());
+            ternary = mpfr_check_range(rop, ternary, MPFR_RNDN);
+            if (ternary != 0) {
+                //cannot represent this BigFloat in the provided exponent range
+                throw new ArithmeticException("the specified BigFloat is not in the provided exponent range");
+            }
+            mpfr_nextbelow(rop);
+            mpfr_subnormalize(rop, 0, MPFR_RNDN);
+            return new BigFloat(rop);
+        } finally {
+            resetExponentRange();
+        }
     }
-    
-    
 }
