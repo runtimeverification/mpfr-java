@@ -12,16 +12,28 @@ public class BinaryMathContextTest {
     @Test
     public void testSetThenGet() {
         BinaryMathContext mc = new BinaryMathContext(5, MPFR_EMIN_DEFAULT, MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY);
-        assertEquals(MPFR_EMIN_DEFAULT, mc.getMinExponent());
-        assertEquals(MPFR_EMAX_DEFAULT, mc.getMaxExponent());
+        assertEquals(MPFR_EMIN_DEFAULT, mc.minExponent);
+        assertEquals(MPFR_EMAX_DEFAULT, mc.maxExponent);
     }
     
     @Test
     public void testIEEEConformance() {
-        assertEquals(Double.MAX_EXPONENT, BinaryMathContext.BINARY64.getMaxExponent());
-        assertEquals(Double.MIN_EXPONENT, BinaryMathContext.BINARY64.getMinExponent());
-        assertEquals(Float.MAX_EXPONENT, BinaryMathContext.BINARY32.getMaxExponent());
-        assertEquals(Float.MIN_EXPONENT, BinaryMathContext.BINARY32.getMinExponent());
+        assertEquals(Double.MAX_EXPONENT, BinaryMathContext.BINARY64.maxExponent);
+        assertEquals(Double.MIN_EXPONENT, BinaryMathContext.BINARY64.minExponent);
+        assertEquals(Float.MAX_EXPONENT, BinaryMathContext.BINARY32.maxExponent);
+        assertEquals(Float.MIN_EXPONENT, BinaryMathContext.BINARY32.minExponent);
+    }
+    
+    @Test
+    public void testDefaultPrecision() {
+        BinaryMathContext mc = new BinaryMathContext(2, RoundingMode.HALF_EVEN);
+        assertEquals(MPFR_EMIN_DEFAULT, mc.minExponent - 1);
+        assertEquals(MPFR_EMAX_DEFAULT, mc.maxExponent);
+    }
+    
+    @Test
+    public void testMaxExponent() {
+        new BinaryMathContext(5, 63);
     }
     
     @Test(expected=IllegalArgumentException.class)
@@ -41,7 +53,7 @@ public class BinaryMathContextTest {
     
     @Test(expected=IllegalArgumentException.class)
     public void testIllegalExponentRange2() {
-        new BinaryMathContext(5, 70);
+        new BinaryMathContext(5, 64);
     }
     
     @Test
