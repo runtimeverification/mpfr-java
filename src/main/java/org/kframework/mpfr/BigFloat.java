@@ -250,7 +250,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * on an {@code mpfr_t} initialized with the specified precision and set with
      * the specified rounding mode.
      * 
-     * @param val String representation of {@code BigFloat}.
+     * @param in String representation of {@code BigFloat}.
      * @param mc the context to use.
      * @throws ArithmeticException if the result is inexact but the rounding mode is
      * {@code UNNECESSARY}.
@@ -399,12 +399,12 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * "{@code BigInteger}" is too big to fit in a {@code byte}, only the
      * low-order 8 bits are returned. Note that this conversion can lose
      * information about the overall magnitude and precision of this
-     * {@BigFloat} value as well as return a result with the opposite sign.
+     * {@code BigFloat} value as well as return a result with the opposite sign.
      * 
      * Per the section on narrowing primitive conversions, if this
-     * {@code BigFloat} is either {@link BigFloat.POSITIVE_INFINITY} or
-     * {@link BigFloat.NEGATIVE_INFINITY}, this method returns
-     * {@link Byte.MAX_VALUE} or {@link Byte.MIN_VALUE} respectively.
+     * {@code BigFloat} is either {@link BigFloat#positiveInfinity(int)} or
+     * {@link BigFloat#negativeInfinity(int)}, this method returns
+     * {@link Byte#MAX_VALUE} or {@link Byte#MIN_VALUE} respectively.
      * 
      * @return this {@code BigFloat} converted to a {@code byte}.
      */
@@ -492,7 +492,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * {@code double} to {@code float} as defined in section 5.1.3 of <i>The Java™
      * Language Specification</i>: if this {@code BigFloat} has too great a magnitude
      * to represent as a {@code float}, it will be converted to 
-     * {@link Float.NEGATIVE_INFINITY} or {@link Float.POSITIVE_INFINITY} as appropriate.
+     * {@link Float#NEGATIVE_INFINITY} or {@link Float#POSITIVE_INFINITY} as appropriate.
      * Note that even when the return value is finite, this conversion can lose information
      * about the precision of the {@code BigFloat} value. However, no precision is lost if the
      * precision of this {@code BigFloat} is less than or equal to the precision of a 
@@ -534,12 +534,12 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * "{@code BigInteger}" is too big to fit in an {@code int}, only the
      * low-order 32 bits are returned. Note that this conversion can lose
      * information about the overall magnitude and precision of this
-     * {@BigFloat} value as well as return a result with the opposite sign.
+     * {@code BigFloat} value as well as return a result with the opposite sign.
      * 
      * Per the section on narrowing primitive conversions, if this
-     * {@code BigFloat} is either {@link BigFloat.POSITIVE_INFINITY} or
-     * {@link BigFloat.NEGATIVE_INFINITY}, this method returns
-     * {@link Integer.MAX_VALUE} or {@link Integer.MIN_VALUE} respectively.
+     * {@code BigFloat} is either {@link BigFloat#positiveInfinity(int)} or
+     * {@link BigFloat#negativeInfinity(int)}, this method returns
+     * {@link Integer#MAX_VALUE} or {@link Integer#MIN_VALUE} respectively.
      * 
      * @return this {@code BigFloat} converted to an {@code int}.
      */
@@ -648,12 +648,12 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * "{@code BigInteger}" is too big to fit in a {@code byte}, only the
      * low-order 64 bits are returned. Note that this conversion can lose
      * information about the overall magnitude and precision of this
-     * {@BigFloat} value as well as return a result with the opposite sign.
+     * {@code BigFloat} value as well as return a result with the opposite sign.
      * 
      * Per the section on narrowing primitive conversions, if this
-     * {@code BigFloat} is either {@link BigFloat.POSITIVE_INFINITY} or
-     * {@link BigFloat.NEGATIVE_INFINITY}, this method returns
-     * {@link Long.MAX_VALUE} or {@link Long.MIN_VALUE} respectively.
+     * {@code BigFloat} is either {@link BigFloat#positiveInfinity(int)} or
+     * {@link BigFloat#negativeInfinity(int)}, this method returns
+     * {@link Long#MAX_VALUE} or {@link Long#MIN_VALUE} respectively.
      * 
      * @return this {@code BigFloat} converted to a {@code long}.
      */
@@ -706,12 +706,12 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * "{@code BigInteger}" is too big to fit in a {@code short}, only the
      * low-order 16 bits are returned. Note that this conversion can lose
      * information about the overall magnitude and precision of this
-     * {@BigFloat} value as well as return a result with the opposite sign.
+     * {@code BigFloat} value as well as return a result with the opposite sign.
      * 
      * Per the section on narrowing primitive conversions, if this
-     * {@code BigFloat} is either {@link BigFloat.POSITIVE_INFINITY} or
-     * {@link BigFloat.NEGATIVE_INFINITY}, this method returns
-     * {@link Short.MAX_VALUE} or {@link Short.MIN_VALUE} respectively.
+     * {@code BigFloat} is either {@link BigFloat#positiveInfinity(int)} or
+     * {@link BigFloat#negativeInfinity(int)}, this method returns
+     * {@link Short#MAX_VALUE} or {@link Short#MIN_VALUE} respectively.
      * 
      * @return this {@code BigFloat} converted to a {@code short}.
      */
@@ -771,7 +771,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * Note that NaNs with and without the sign bit set both test true against
      * each other according to {@link #equals(Object)}. Of course, 
      * {@code NaN == NaN} is always false.
-     * @return
+     * @return The sign bit of this floating point number.
      */
     public boolean sign() {
         return mpfr_signbit(op);
@@ -930,7 +930,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * flexibility in case users want to choose precisely how to represent their
      * values as a String.
      * @param format
-     * @return
+     * @return A String representation of the {@code BigFloat}, formatted according
+     * to {@code format}.
      */
     public String toString(String format) {
         return mpfr_asprintf(format, op);
@@ -958,7 +959,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is less than {@code anotherBigFloat};
      * {@code false} otherwise.
      */
-    public boolean lt(BigFloat anotherBigFloat) {
+    public boolean lessThan(BigFloat anotherBigFloat) {
         return mpfr_less_p(op, anotherBigFloat.op);
     }
     
@@ -984,8 +985,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is greater than
      * {@code anotherBigFloat}; {@code false} otherwise.
      */
-    public boolean gt(BigFloat val) {
-        return mpfr_greater_p(op, val.op);
+    public boolean greaterThan(BigFloat anotherBigFloat) {
+        return mpfr_greater_p(op, anotherBigFloat.op);
     }
     
     /**
@@ -1010,8 +1011,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is less than or equal to
      * {@code anotherBigFloat}; {@code false} otherwise.
      */
-    public boolean le(BigFloat val) {
-        return mpfr_lessequal_p(op, val.op);
+    public boolean lessThanOrEqualTo(BigFloat anotherBigFloat) {
+        return mpfr_lessequal_p(op, anotherBigFloat.op);
     }
     
     /**
@@ -1036,8 +1037,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is greater than or equal to
      * {@code anotherBigFloat}; {@code false} otherwise.
      */
-    public boolean ge(BigFloat val) {
-        return mpfr_greaterequal_p(op, val.op);
+    public boolean greaterThanOrEqualTo(BigFloat anotherBigFloat) {
+        return mpfr_greaterequal_p(op, anotherBigFloat.op);
     }
     
     /**
@@ -1062,8 +1063,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is equal to
      * {@code anotherBigFloat}; {@code false} otherwise.
      */
-    public boolean eq(BigFloat val) {
-        return mpfr_equal_p(op, val.op);
+    public boolean equalTo(BigFloat anotherBigFloat) {
+        return mpfr_equal_p(op, anotherBigFloat.op);
     }
     
     /**
@@ -1088,8 +1089,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code true} if {@code this} is not equal to
      * {@code anotherBigFloat}; {@code false} otherwise.
      */
-    public boolean ne(BigFloat val) {
-        return !eq(val);
+    public boolean notEqualTo(BigFloat anotherBigFloat) {
+        return !equalTo(anotherBigFloat);
     }
 
     /**
@@ -1097,8 +1098,9 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * total ordering according to the specifications of the
      * {@link Comparable} interface. There are three ways in which comparisons
      * performed by this method differ from those performed by the IEEE
-     * comparison methods {@link #lt}, {@link #gt}, {@link #le}, {@link #ge},
-     * {@link #eq}, and {@link #ne} when applied to {@code BigFloat} values:
+     * comparison methods {@link #lessThan}, {@link #greaterThan},
+     * {@link #lessThanOrEqualTo}, {@link #greaterThanOrEqualTo},
+     * {@link #equalTo}, and {@link #notEqualTo} when applied to {@code BigFloat} values:
      * <ul><li>
      * NaN is considered by this method to be equal to itself and
      * greater than all other {@code BigFloat} values (including +Infinity).
@@ -1123,10 +1125,10 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      */
     @Override
     public int compareTo(BigFloat anotherBigFloat) {
-        if (this.lt(anotherBigFloat)) {
+        if (this.lessThan(anotherBigFloat)) {
             return -1;
         }
-        if (this.gt(anotherBigFloat)) {
+        if (this.greaterThan(anotherBigFloat)) {
             return 1;
         }
         if (this.isNegativeZero() && anotherBigFloat.isPositiveZero()) {
@@ -1142,7 +1144,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
             return 1;
         }
         if (this.isNaN() && anotherBigFloat.isNaN()) {
-            return 0;
+            return Integer.compare(this.precision(), anotherBigFloat.precision());
         }
         int res = mpfr_cmp(op, anotherBigFloat.op);
         if (res != 0) {
@@ -1153,7 +1155,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     
     /**
      * Compares this {@code BigFloat} with the specified {@code Object} for
-     * equality. Unlike {@link #eq}, this method considers two
+     * equality. Unlike {@link #equalTo}, this method considers two
      * {@code BigFloat} objects equal only if they are equal in value and
      * precision; it also considers -0.0 and 0.0 to be distinct, and NaN
      * to be equal to itself.
@@ -1167,7 +1169,7 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * is a {@code BigFloat} whose value and precision are exactly equal
      * to this {@code BigFloat}'s according to logical equality.
      * @see #compareTo(BigFloat)
-     * @see #eq(BigFloat)
+     * @see #equalTo(BigFloat)
      * @see #hashCode()
      */
     @Override
@@ -2760,13 +2762,13 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * direction of {@code direction}.
      */
     public BigFloat nextAfter(BigFloat direction, long minExponent, long maxExponent) {
-        if(eq(direction)) {
+        if(equalTo(direction)) {
             return direction;
         }
-        if (lt(direction)) {
+        if (lessThan(direction)) {
             return nextUp(minExponent, maxExponent);
         }
-        if (gt(direction)) {
+        if (greaterThan(direction)) {
             return nextDown(minExponent, maxExponent);
         }
         if (direction.isNaN()) {

@@ -175,19 +175,10 @@ public final class BinaryMathContext implements Serializable {
      * @throws NullPointerException if the rounding mode argument is {@code null}.
      */
     public BinaryMathContext(int setPrecision, int setExponent, RoundingMode setRoundingMode) {
-        if (setPrecision < 0) {
-            throw new IllegalArgumentException("Precision < 0");
-        }
+        this(setPrecision, -(1L << (setExponent - 1)) + 2, (1L << (setExponent - 1)) - 1, setRoundingMode);
         if (setExponent < 0 || setExponent > 63) {
             throw new IllegalArgumentException("Exponent range not expressible as a long");
         }
-        if (setRoundingMode == null) {
-            throw new NullPointerException("null RoundingMode");
-        }
-        this.precision = setPrecision;
-        this.maxExponent = (1 << (setExponent - 1)) - 1;
-        this.minExponent = -maxExponent + 1;
-        this.roundingMode = setRoundingMode;
     }
     
     /**

@@ -2,6 +2,10 @@ package org.kframework.mpfr;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.RoundingMode;
 
 import org.junit.Test;
@@ -56,6 +60,11 @@ public class BinaryMathContextTest {
         new BinaryMathContext(5, 64);
     }
     
+    @Test(expected=IllegalArgumentException.class)
+    public void testIllegalExponentRange3() {
+        new BinaryMathContext(5, 1, -1, RoundingMode.HALF_EVEN);
+    }
+    
     @Test
     public void testEquals() {
         assertNotEquals(BinaryMathContext.BINARY32, 5);
@@ -67,6 +76,17 @@ public class BinaryMathContextTest {
         assertNotEquals(BinaryMathContext.BINARY32, new BinaryMathContext(24, 9));
         assertNotEquals(BinaryMathContext.BINARY32, new BinaryMathContext(24, Float.MIN_EXPONENT, Float.MAX_EXPONENT + 1, RoundingMode.HALF_EVEN));
         assertNotEquals(BinaryMathContext.BINARY32, BinaryMathContext.BINARY32.withRoundingMode(RoundingMode.UNNECESSARY));
+    }
+    
+    @Test
+    public void testSerialize() throws Exception {
+        BinaryMathContext mc = BinaryMathContext.BINARY32;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream oout = new ObjectOutputStream(out);
+        oout.writeObject(mc);
+        oout.close();
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray()));
+        assertEquals(mc, (BinaryMathContext)in.readObject());
     }
 
 }

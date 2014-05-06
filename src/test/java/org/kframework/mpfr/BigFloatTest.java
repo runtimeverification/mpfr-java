@@ -51,6 +51,7 @@ public class BigFloatTest {
         assertEquals(0, f.intValueExact());
         assertEquals(0, f.shortValueExact());
         assertTrue(f.isPositiveZero());
+        assertFalse(f.isSubnormal(-1022));
         f = BigFloat.NaN(5);
         assertTrue(Double.isNaN(f.doubleValueExact()));
         assertTrue(f.isNaN());
@@ -80,6 +81,7 @@ public class BigFloatTest {
             f.toBigIntegerExact();
             fail();
         } catch (ArithmeticException e) {}
+        assertFalse(f.isSubnormal(-1022));
         f = BigFloat.negativeInfinity(5);
         assertDoubleEquals(-1.0/0.0, f.doubleValueExact());
         assertTrue(f.isInfinite());
@@ -108,9 +110,11 @@ public class BigFloatTest {
             f.toBigIntegerExact();
             fail();
         } catch (ArithmeticException e) {}
+        assertFalse(f.isSubnormal(-1022));
         f = BigFloat.negativeZero(5);
         assertDoubleEquals(-0.0, f.doubleValueExact());
         assertTrue(f.isNegativeZero());
+        assertFalse(f.isSubnormal(-1022));
         f = BigFloat.positiveInfinity(5);
         assertDoubleEquals(1.0/0.0, f.doubleValueExact());
         assertTrue(f.isInfinite());
@@ -139,6 +143,7 @@ public class BigFloatTest {
             f.toBigIntegerExact();
             fail();
         } catch (ArithmeticException e) {}
+        assertFalse(f.isSubnormal(-1022));
         f = new BigFloat(0.5, BinaryMathContext.BINARY32);
         assertFloatEquals(0.5F, f.floatValueExact());
         assertEquals(0, f.byteValue());
@@ -333,34 +338,34 @@ public class BigFloatTest {
     public void testIEEECompare() {
         BigFloat f = new BigFloat(0.5, BinaryMathContext.BINARY32);
         BigFloat f2 = new BigFloat(0.4, BinaryMathContext.BINARY32);
-        assertTrue(f.gt(f2));
-        assertTrue(f2.lt(f));
-        assertTrue(f.ge(f2));
-        assertTrue(f2.le(f));
-        assertTrue(f.eq(f));
-        assertFalse(f.ne(f));
-        assertFalse(f.eq(f2));
+        assertTrue(f.greaterThan(f2));
+        assertTrue(f2.lessThan(f));
+        assertTrue(f.greaterThanOrEqualTo(f2));
+        assertTrue(f2.lessThanOrEqualTo(f));
+        assertTrue(f.equalTo(f));
+        assertFalse(f.notEqualTo(f));
+        assertFalse(f.equalTo(f2));
         BigFloat f3 = new BigFloat(0.5, BinaryMathContext.BINARY64);
-        assertTrue(f.eq(f3));
-        assertFalse(nan.eq(nan));
-        assertFalse(nan.eq(f));
-        assertFalse(nan.lt(nan));
-        assertFalse(nan.lt(f));
-        assertFalse(nan.gt(nan));
-        assertFalse(nan.gt(f));
-        assertFalse(nan.ge(nan));
-        assertFalse(nan.ge(f));
-        assertFalse(nan.le(nan));
-        assertFalse(nan.le(f));
-        assertTrue(nan.ne(nan));
-        assertTrue(nan.ne(f));
-        assertFalse(inf.lt(f));
-        assertTrue(inf.eq(inf));
-        assertTrue(f.lt(inf));
-        assertTrue(neginf.lt(inf));
-        assertTrue(neginf.lt(f));
-        assertTrue(neginf.eq(neginf));
-        assertFalse(f.lt(neginf));
+        assertTrue(f.equalTo(f3));
+        assertFalse(nan.equalTo(nan));
+        assertFalse(nan.equalTo(f));
+        assertFalse(nan.lessThan(nan));
+        assertFalse(nan.lessThan(f));
+        assertFalse(nan.greaterThan(nan));
+        assertFalse(nan.greaterThan(f));
+        assertFalse(nan.greaterThanOrEqualTo(nan));
+        assertFalse(nan.greaterThanOrEqualTo(f));
+        assertFalse(nan.lessThanOrEqualTo(nan));
+        assertFalse(nan.lessThanOrEqualTo(f));
+        assertTrue(nan.notEqualTo(nan));
+        assertTrue(nan.notEqualTo(f));
+        assertFalse(inf.lessThan(f));
+        assertTrue(inf.equalTo(inf));
+        assertTrue(f.lessThan(inf));
+        assertTrue(neginf.lessThan(inf));
+        assertTrue(neginf.lessThan(f));
+        assertTrue(neginf.equalTo(neginf));
+        assertFalse(f.lessThan(neginf));
     }
     
     @Test
@@ -388,6 +393,9 @@ public class BigFloatTest {
         assertEquals(nan, nan);
         assertNotEquals(nan, null);
         assertNotEquals(one, 1.0);
+        BigFloat nan2 = BigFloat.NaN(53);
+        assertNotEquals(nan, nan2);
+        assertTrue(nan.compareTo(nan2) < 0);
     }
     
     @Test
@@ -671,6 +679,14 @@ public class BigFloatTest {
         assertEquals(neginf, BigFloat.maxValue(24, emax).negate().nextAfter(neginf, emin, emax));
         assertEquals(neginf, BigFloat.maxValue(24, emax).negate().nextDown(emin, emax));
         try {
+            BigFloat.maxValue(24, emax).nextDown(-10, 10);
+            fail();
+        } catch (ArithmeticException e) {}
+        try {
+            BigFloat.minValue(24, emin).nextUp(-10, 10);
+            fail();
+        } catch (ArithmeticException e) {}
+        try {
             BigFloat.minValue(53, Double.MIN_EXPONENT).floatValueExact();
             fail();
         } catch (ArithmeticException e) {}
@@ -686,7 +702,9 @@ public class BigFloatTest {
         assertEquals(-1022, BigFloat.minNormal(53, Double.MIN_EXPONENT).exponent(Double.MIN_EXPONENT, Double.MAX_EXPONENT));
         
         assertDoubleEquals(Math.sqrt(3.0), three.root(2, BinaryMathContext.BINARY64).doubleValueExact());
+        assertDoubleEquals(Math.sqrt(3.0), three.sqrt(BinaryMathContext.BINARY64).doubleValueExact());
         assertDoubleEquals(Math.cbrt(3.0), three.root(3, BinaryMathContext.BINARY64).doubleValueExact());
+        assertDoubleEquals(Math.cbrt(3.0), three.cbrt(BinaryMathContext.BINARY64).doubleValueExact());
         assertEquals(nan, nan.root(2, mc));
         assertEquals(nan, one.negate().root(2, mc));
         assertEquals(inf, inf.root(2, mc));
@@ -700,6 +718,10 @@ public class BigFloatTest {
         assertEquals(negzero, negzero.root(3, mc));
         assertEquals(nan, one.root(0, mc));
         assertEquals(half, new BigFloat(4, mc).root(-2, mc));
+        
+        assertEquals(0, half.rint(mc.withRoundingMode(RoundingMode.FLOOR)).longValueExact());
+        assertEquals(1, half.rint(mc.withRoundingMode(RoundingMode.CEILING)).longValueExact());
+        assertEquals(0, half.rint(mc.withRoundingMode(RoundingMode.HALF_EVEN)).longValueExact());
     }
     
     @Test
@@ -738,7 +760,15 @@ public class BigFloatTest {
         assertDoubleEquals(1.0, 
                 new BigFloat(1, new BinaryMathContext(5, RoundingMode.HALF_EVEN)).abs().doubleValueExact());
         try {
-            BigFloat.maxValue(53, 1023).exponent(-10, 10);
+            BigFloat.minValue(53, -1022).exponent(-10, 1023);
+            fail();
+        } catch (ArithmeticException e) {}
+        try {
+            BigFloat.maxValue(53, 1023).exponent(-1022, 10);
+            fail();
+        } catch (ArithmeticException e) {}
+        try {
+            BigFloat.zero(5).add(BigFloat.zero(5), new BinaryMathContext(5, 35));
             fail();
         } catch (ArithmeticException e) {}
     }
