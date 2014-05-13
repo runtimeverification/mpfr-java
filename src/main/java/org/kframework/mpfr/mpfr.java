@@ -526,7 +526,9 @@ final class mpfr {
          */
         @Override
         protected void finalize() throws Throwable {
-            mpfr_clear(this);
+            if (_mpfr_d != 0) {
+                mpfr_clear(this);
+            }
         }
         
         @JniField(cast="mpfr_prec_t") int _mpfr_prec;
@@ -669,7 +671,9 @@ final class mpfr {
          */
         @Override
         protected void finalize() throws Throwable {
-            mpz_clear(this);
+            if (_mp_d != 0) {
+                mpz_clear(this);
+            }
         }
         
         int _mp_alloc;
