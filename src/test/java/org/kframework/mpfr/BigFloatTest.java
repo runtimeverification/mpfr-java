@@ -24,7 +24,7 @@ public class BigFloatTest {
     private BigFloat subnormal = BigFloat.minValue(24, BinaryMathContext.BINARY32.minExponent);
 
     @Test
-    public void testMaxValue() {
+    public void testMinMaxValue() {
         BigFloat f = new BigFloat(Long.MAX_VALUE, BinaryMathContext.BINARY128);
         assertEquals(Long.MAX_VALUE, f.longValueExact());
         f = new BigFloat(Long.MIN_VALUE, BinaryMathContext.BINARY128);
@@ -35,10 +35,33 @@ public class BigFloatTest {
         assertEquals(Double.valueOf(expected), Double.valueOf(result));
     }
     
+    /**
+     * JUnit's assertEquals method for type {@code float} requires you
+     * to specify an epsilon of accuracy. This is good for most use cases
+     * but not for testing a floating point library itself. Hence we box
+     * into {@link Float} in order to take advantage of 
+     * {@link Float#equals}, which will provide us an exact comparison
+     * suitable for use with {@link #assertEquals}.
+     * @param expected The value expected to be returned by the expression
+     * tested.
+     * @param result The result to be compared against the expected value.
+     */
     public void assertFloatEquals(float expected, float result) {
         assertEquals(Float.valueOf(expected), Float.valueOf(result));
     }
     
+
+    /**
+     * JUnit's assertEquals method for type {@code double} requires you
+     * to specify an epsilon of accuracy. This is good for most use cases
+     * but not for testing a floating point library itself. Hence we box
+     * into {@link Double} in order to take advantage of 
+     * {@link Double#equals}, which will provide us an exact comparison
+     * suitable for use with {@link #assertEquals}.
+     * @param expected The value expected to be returned by the expression
+     * tested.
+     * @param result The result to be compared against the expected value.
+     */
     public void assertDoubleNotEquals(double expected, double result) {
         assertNotEquals(Double.valueOf(expected), Double.valueOf(result));
     }

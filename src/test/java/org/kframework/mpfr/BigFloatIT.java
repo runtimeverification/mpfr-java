@@ -2,6 +2,13 @@ package org.kframework.mpfr;
 
 import org.junit.Test;
 
+/**
+ * Integration tests for BigFloat.java. Currently contains only one test: a test which spawns a very
+ * large number of objects in order to make sure that garbage collection occurs correctly.
+ * 
+ * @author dwightguth
+ *
+ */
 public class BigFloatIT {
 
     @Test
