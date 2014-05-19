@@ -1,6 +1,6 @@
 # MPFR Java Bindings
 
-[GNU MPFR](http://www.mpfr.org/) is a C library for performing mathematical computations on extended precision IEEE 754 binary floating point numbers. Currently, however, MPFR had no Java interface, third-party or otherwise, and all the existing arbitrary precision floating point libraries for Java were not suitable for the task of providing conformance with the IEEE 754-2008 standard for binary floating point numbers. To address this gap, the MPFR Java project was born, with the intent of providing a managed code interface between MPFR and Java analogous to the behavior of Java's existing [BigDecimal](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html) type, but prioritized to conform to the IEEE standard.
+[GNU MPFR](http://www.mpfr.org/) is a C library for performing mathematical computations on extended precision IEEE 754 binary floating point numbers. Currently, however, MPFR has no Java interface, third-party or otherwise, and all the existing arbitrary precision floating point libraries for Java are not suitable for the task of providing conformance with the IEEE 754-2008 standard for binary floating point numbers. To address this gap, the MPFR Java project exists, with the intent of providing a managed code interface between MPFR and Java analogous to the behavior of Java's existing [BigDecimal](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html) type, but prioritized to conform to the IEEE standard.
 
 ## Getting started
 
