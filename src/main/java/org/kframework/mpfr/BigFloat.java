@@ -1144,13 +1144,13 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
             return 1;
         }
         if (this.isNaN() && anotherBigFloat.isNaN()) {
-            return Integer.compare(this.precision(), anotherBigFloat.precision());
+            return Integer.valueOf(this.precision()).compareTo(anotherBigFloat.precision());
         }
         int res = mpfr_cmp(op, anotherBigFloat.op);
         if (res != 0) {
             return res;
         }
-        return Integer.compare(this.precision(), anotherBigFloat.precision());
+        return Integer.valueOf(this.precision()).compareTo(anotherBigFloat.precision());
     }
     
     /**
