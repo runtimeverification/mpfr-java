@@ -39,6 +39,14 @@
     </plugins>
   </reporting>
 
+  <properties>
+    <mpfr.cppflags>
+    </mpfr.cppflags>
+    <mpfr.libs>
+      -lmpfr -lgmp
+    </mpfr.libs>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -89,7 +97,8 @@
               ]]></copyright>
               <configureArgs>
                 <arg>--enable-static</arg>
-                <arg>LIBS=-lmpfr -lgmp</arg>
+                <arg>LIBS=${mpfr.libs}</arg>
+                <arg>CPPFLAGS=${mpfr.cppflags}</arg>
               </configureArgs>
             </configuration>
           </execution>
