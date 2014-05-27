@@ -190,7 +190,7 @@ final class mpfr {
             bytes.get(byteArray);
             return mpfr_set_str(rop, byteArray, base, rnd);
         } catch (CharacterCodingException e) {
-            throw new NumberFormatException();
+            throw new NumberFormatException(s);
         }
     }
     
@@ -219,7 +219,7 @@ final class mpfr {
             int result = mpfr_strtofr(rop, ptr, endptr, base, rnd);
             if (strlen(endptr[0]) != 0) {
                 //didn't read the entire string, therefore, it was not a float
-                throw new NumberFormatException();
+                throw new NumberFormatException(new String(s));
             }
             return result;
         } finally {

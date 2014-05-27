@@ -22,6 +22,8 @@ public class mpfrTest {
         mpfr_t x = new mpfr_t(24);
         int rounded = mpfr_set_str(x, "0.5", 10, MPFR_RNDN);
         assertEquals(0, rounded);
+        rounded = mpfr_set_str(x, "5.0", 10, MPFR_RNDN);
+        assertEquals(0, rounded);
     }
     
     @Test(expected=NumberFormatException.class)

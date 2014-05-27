@@ -39,14 +39,22 @@
     </plugins>
   </reporting>
 
+  <properties>
+    <mpfr.cppflags>
+    </mpfr.cppflags>
+    <mpfr.libs>
+      -lmpfr -lgmp
+    </mpfr.libs>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.0</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
       <plugin>
@@ -89,7 +97,8 @@
               ]]></copyright>
               <configureArgs>
                 <arg>--enable-static</arg>
-                <arg>LIBS=-lmpfr -lgmp</arg>
+                <arg>LIBS=${mpfr.libs}</arg>
+                <arg>CPPFLAGS=${mpfr.cppflags}</arg>
               </configureArgs>
             </configuration>
           </execution>

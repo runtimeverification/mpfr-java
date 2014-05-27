@@ -8,6 +8,19 @@ To compile for your platform, download the project and run `mvn install`. The re
 
 Github releases for Windows, Linux, and Mac OS X will come soon.
 
+## Building a JNI library which statically links against MPFR and GMP
+
+By default, MFPR Java builds the native libraries using dynamic linking. As a result of this, the default installation will not work correctly, and will create an UnsatisfiedLinkError, if run on a system which does not have MPFR and GMP installed. To work around this problem, the releases we provide statically link these two dependencies. If you wish to do the same on another platform, follow the following instructions:
+
+1. Download the latest versions of GMP and MPFR from the web, and unzip their source.
+2. in the gmp directory, run `./configure --with-pic --host=<arch>; make`
+3. in the mpfr directory, run `./configure --with-gmp-include=<gmpdir> --with-gmp-lib=<gmpdir>/.libs --with-pic --host=<arch>; make`
+4. in the mpfr-java directory, run `mvn install -Dmpfr.cppflags='-I<mpfrdir>/src -I<gmpdir>' -Dmpfr.libs='<mpfrdir>/src/.libs/libmpfr.a <gmpdir>/.libs/libgmp.a'`
+
+Where `<arch>` is the architecture of system you wish to support (e.g. "x86\_64").
+
+This will create a jar containing a shared library which is linked statically against mpfr and gmp, and linked dynamically against all other dependencies. Note that this creates a GMP build which does not take advantage of any processor-specific extensions. If you wish to build MPFR Java for absolute maximum performance, you should dynamically link against a version of GMP and MPFR tuned to the specific processor you wish to run on.
+
 ## Feedback
 
 If you have issues or questions regarding the project, please create an issue in our issue tracker. Pull requests are also welcome as long as they conform to the design principles of the project.

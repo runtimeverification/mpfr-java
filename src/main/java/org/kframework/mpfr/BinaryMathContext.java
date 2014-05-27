@@ -38,13 +38,19 @@ public final class BinaryMathContext implements Serializable {
     // Serialization version
     private static final long serialVersionUID = -9122817091910408578L;
 
+    public static final int BINARY16_EXPONENT_BITS = 5;
+    public static final int BINARY32_EXPONENT_BITS = 8;
+    public static final int BINARY64_EXPONENT_BITS = 11;
+    public static final int BINARY128_EXPONENT_BITS = 15;
+    
     /**
      * A {@code BinaryMathContext} object with precision and exponent settings
      * matching the IEEE 754-2008 Binary16 format, 11 bits of precision and
      * 5 bits of exponent, and a rounding mode of {@link RoundingMode#HALF_EVEN HALF_EVEN},
      * the IEEE 754-2008 default.
      */
-    public static final BinaryMathContext BINARY16 = new BinaryMathContext(11, 5);
+    public static final BinaryMathContext BINARY16 = new BinaryMathContext(11, 
+            BINARY16_EXPONENT_BITS);
     
     /**
      * A {@code BinaryMathContext} object with precision and exponent settings
@@ -52,7 +58,8 @@ public final class BinaryMathContext implements Serializable {
      * 8 bits of exponent, and a rounding mode of {@link RoundingMode#HALF_EVEN HALF_EVEN},
      * the IEEE 754-2008 default.
      */
-    public static final BinaryMathContext BINARY32 = new BinaryMathContext(24, 8);
+    public static final BinaryMathContext BINARY32 = new BinaryMathContext(24, 
+            BINARY32_EXPONENT_BITS);
     
     /**
      * A {@code BinaryMathContext} object with precision and exponent settings
@@ -60,7 +67,8 @@ public final class BinaryMathContext implements Serializable {
      * 11 bits of exponent, and a rounding mode of {@link RoundingMode#HALF_EVEN HALF_EVEN},
      * the IEEE 754-2008 default.
      */
-    public static final BinaryMathContext BINARY64 = new BinaryMathContext(53, 11);
+    public static final BinaryMathContext BINARY64 = new BinaryMathContext(53, 
+            BINARY64_EXPONENT_BITS);
     
     /**
      * A {@code BinaryMathContext} object with precision and exponent settings
@@ -68,7 +76,8 @@ public final class BinaryMathContext implements Serializable {
      * 15 bits of exponent, and a rounding mode of {@link RoundingMode#HALF_EVEN HALF_EVEN},
      * the IEEE 754-2008 default.
      */
-    public static final BinaryMathContext BINARY128 = new BinaryMathContext(113, 15);
+    public static final BinaryMathContext BINARY128 = new BinaryMathContext(113, 
+            BINARY128_EXPONENT_BITS);
     
     /**
      * The number of digits to be used for an operation. The value 0 is
@@ -82,7 +91,7 @@ public final class BinaryMathContext implements Serializable {
      * 
      * @serial
      */
-    final int precision;
+    public final int precision;
     
     /**
      * The minimum normal exponent in the exponent range to be used for an operation.
@@ -97,7 +106,7 @@ public final class BinaryMathContext implements Serializable {
      * 
      * @serial
      */
-    final long minExponent;
+    public final long minExponent;
     
     /**
      * The maximum normal exponent in the exponent range to be used for an operation.
@@ -110,7 +119,7 @@ public final class BinaryMathContext implements Serializable {
      * 
      * @serial
      */
-    final long maxExponent;
+    public final long maxExponent;
     
     /**
      * The rounding algorithm to be used for an operation. Note that the rounding modes
@@ -121,7 +130,7 @@ public final class BinaryMathContext implements Serializable {
      * @see RoundingMode
      * @serial
      */
-    final RoundingMode roundingMode;
+    public final RoundingMode roundingMode;
     
     
     /**
