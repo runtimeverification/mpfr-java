@@ -42,6 +42,8 @@
   <properties>
     <mpfr.cppflags>
     </mpfr.cppflags>
+    <mpfr.host>
+    </mpfr.host>
     <mpfr.libs>
       -lmpfr -lgmp
     </mpfr.libs>
@@ -99,6 +101,7 @@
                 <arg>--enable-static</arg>
                 <arg>LIBS=${mpfr.libs}</arg>
                 <arg>CPPFLAGS=${mpfr.cppflags}</arg>
+                <arg>--host=${mpfr.host}</arg>
               </configureArgs>
             </configuration>
           </execution>
