@@ -153,9 +153,16 @@ public final class BinaryMathContext implements Serializable {
     
     /**
      * Constructs a new {@code BinaryMathContext} with the specified
-     * precision and rounding mode and 31 bits of precision. 31 bits
+     * precision and rounding mode and 30 bits of precision. 30 bits
      * of precision is used because it is the largest exponent range
-     * that is guaranteed to be supported by all MPFR implementations.
+     * that is guaranteed to be supported by all MPFR implementations
+     * for a significant range of possible precisions.
+     * 
+     * Note that because of the need to emulate subnormal arithmetic,
+     * this constructor will produce an object which is outside the
+     * usable range of this library if {@code setPrecision} is greater than
+     * {@code Integer.MAX_VALUE / 4 + 4}. To perform operations on numbers
+     * of larger precision, you must decrease the exponent range accordingly.
      * 
      * @param setPrecision The non-negative {@code int} precision setting.
      * @param setRoundingMode The rounding mode to use.
@@ -164,7 +171,7 @@ public final class BinaryMathContext implements Serializable {
      * @throws NullPointerException if the rounding mode argument is {@code null}.
      */
     public BinaryMathContext(int setPrecision, RoundingMode setRoundingMode) {
-        this(setPrecision, 31, setRoundingMode);
+        this(setPrecision, 30, setRoundingMode);
     }
     
     /**
