@@ -79,7 +79,7 @@ public class mpfrTest {
         ternary = mpfr_abs(x, x, MPFR_RNDN);
         assertEquals(0, ternary);
         boolean rounded = BigFloat.roundExponent(ternary, x, 
-                new BinaryMathContext(24, MPFR_EMIN_DEFAULT, MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
+                new BinaryMathContext(24, BigFloat.eminMin(24), BigFloat.EMAX_MAX, RoundingMode.UNNECESSARY));
         assertFalse(rounded);
     }
     

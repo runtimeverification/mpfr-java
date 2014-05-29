@@ -15,9 +15,9 @@ public class BinaryMathContextTest {
 
     @Test
     public void testSetThenGet() {
-        BinaryMathContext mc = new BinaryMathContext(5, MPFR_EMIN_DEFAULT, MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY);
-        assertEquals(MPFR_EMIN_DEFAULT, mc.minExponent);
-        assertEquals(MPFR_EMAX_DEFAULT, mc.maxExponent);
+        BinaryMathContext mc = new BinaryMathContext(5, BigFloat.eminMin(5), BigFloat.EMAX_MAX, RoundingMode.UNNECESSARY);
+        assertEquals(MPFR_EMIN_DEFAULT, mc.minExponent - 5 + 2);
+        assertEquals(MPFR_EMAX_DEFAULT, mc.maxExponent + 1);
     }
     
     @Test
@@ -30,7 +30,7 @@ public class BinaryMathContextTest {
     
     @Test
     public void testDefaultPrecision() {
-        BinaryMathContext mc = new BinaryMathContext(2, RoundingMode.HALF_EVEN);
+        BinaryMathContext mc = new BinaryMathContext(2, 31, RoundingMode.HALF_EVEN);
         assertEquals(MPFR_EMIN_DEFAULT, mc.minExponent - 1);
         assertEquals(MPFR_EMAX_DEFAULT, mc.maxExponent);
     }

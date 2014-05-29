@@ -826,6 +826,16 @@ public class BigFloatTest {
         assertEquals(8, subnormal.multiply(new BigFloat(8, mc), mc).significand(emin, emax).longValue());
     }
     
+    @Test
+    public void testDefaultExponentRange() {
+        BinaryMathContext mc = new BinaryMathContext(Integer.MAX_VALUE / 4 + 4, RoundingMode.HALF_EVEN);
+        try {
+            BigFloat.setExponentRange(mc.minExponent, mc.maxExponent, mc.precision);
+        } finally {
+            BigFloat.resetExponentRange();
+        }
+    }
+    
     private float[] regularExamples = new float[] 
             {1.0f, 1.5f, 15, 0, -0, Float.MAX_VALUE, Float.MIN_NORMAL, 
             Float.MIN_VALUE, -Float.MAX_VALUE, -Float.MIN_NORMAL,

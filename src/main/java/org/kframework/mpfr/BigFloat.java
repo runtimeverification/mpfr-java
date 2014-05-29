@@ -1239,23 +1239,31 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
         }
     }
 
-    private static void resetExponentRange() {
+    static void resetExponentRange() {
         boolean failed = mpfr_set_emin(MPFR_EMIN_DEFAULT);
         failed |= mpfr_set_emax(MPFR_EMAX_DEFAULT);
         assert !failed : "unexpected failure resetting exponent range";
     }
+    
+    static long eminMin(int precision) {
+        return MPFR_EMIN_DEFAULT + precision - 2;
+    }
+    
+    static long EMAX_MAX = MPFR_EMAX_DEFAULT - 1;
 
-    private static void setExponentRange(long minExponent, long maxExponent, int precision) {
-        if (minExponent < MPFR_EMIN_DEFAULT || maxExponent > MPFR_EMAX_DEFAULT) {
-            throw new ArithmeticException("invalid exponent range");
-        }
+    static void setExponentRange(long minExponent, long maxExponent, int precision) {
         minExponent = minExponent - precision + 2;
         maxExponent = maxExponent + 1;
+        if (minExponent < MPFR_EMIN_DEFAULT || maxExponent > MPFR_EMAX_DEFAULT) {
+            throw new ArithmeticException("invalid exponent range for specified precision: "
+                + "maximum allowed exponent range for this precision is [" + eminMin(precision)
+                + "," + EMAX_MAX + "]");
+        }
         boolean failed = mpfr_set_emin(minExponent);
         failed |= mpfr_set_emax(maxExponent);
         if (failed) {
             resetExponentRange();
-            throw new ArithmeticException("invalid exponent range for specified precision");
+            assert false : "should never fail to set exponent range successfully";
         }
     }
 
@@ -1747,8 +1755,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code abs(this)}.
      */
     public BigFloat abs() {
-        return abs(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
-                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
+        return abs(new BinaryMathContext(precision(), eminMin(precision()), 
+                EMAX_MAX, RoundingMode.UNNECESSARY));
     }
 
     /**
@@ -1782,8 +1790,8 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
      * @return {@code -this}.
      */
     public BigFloat negate() {
-        return negate(new BinaryMathContext(precision(), mpfr.MPFR_EMIN_DEFAULT, 
-                mpfr.MPFR_EMAX_DEFAULT, RoundingMode.UNNECESSARY));
+        return negate(new BinaryMathContext(precision(), eminMin(precision()), 
+                EMAX_MAX, RoundingMode.UNNECESSARY));
     }
 
     /**
