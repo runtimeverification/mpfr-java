@@ -859,6 +859,14 @@ public class BigFloat extends Number implements Comparable<BigFloat> {
     }
 
     /**
+     * Returns {@code true} if the specified number is an ordinary number, {@code false} otherwise.
+     * @return {@code true} if {@code this} is n ordinary number, {@code false} otherwise.
+     */
+    public boolean isNumber() {
+        return mpfr_number_p(op);
+    }
+
+    /**
      * Returns {@code true} if the specified number is positive zero, 
      * {@code false} otherwise.
      * 

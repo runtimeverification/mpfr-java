@@ -110,6 +110,7 @@ final class mpfr {
 
     static native boolean mpfr_nan_p(@JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) mpfr_t op);
     static native boolean mpfr_inf_p(@JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) mpfr_t op);
+    static native boolean mpfr_number_p(@JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) mpfr_t op);
     static native boolean mpfr_zero_p(@JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) mpfr_t op);
     static native boolean mpfr_integer_p(@JniArg(cast="mpfr_ptr", flags={POINTER_ARG}) mpfr_t op);
 
