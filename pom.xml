@@ -130,10 +130,7 @@
     </profile>
  
     <profile>
-      <id>mac</id>
-      <activation>
-        <os><family>mac</family></os>
-      </activation>
+      <id>mac-universal</id>
       <build>
         <plugins>
           <plugin>
