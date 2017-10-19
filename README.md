@@ -15,7 +15,7 @@ By default, MFPR Java builds the native libraries using dynamic linking. As a re
 1. Download the latest versions of GMP and MPFR from the web, and unzip their source.
 2. in the gmp directory, run `./configure --with-pic --build=<arch>; make`
 3. in the mpfr directory, run `./configure --with-gmp-include=<gmpdir> --with-gmp-lib=<gmpdir>/.libs --with-pic --build=<arch>; make`
-4. in the mpfr-java directory, run `mvn install -Dmpfr.cppflags='-I<mpfrdir>/src -I<gmpdir>' -Dmpfr.libs='<mpfrdir>/src/.libs/libmpfr.a <gmpdir>/.libs/libgmp.a' --build=<arch>`
+4. in the mpfr-java directory, run `mvn install -Dmpfr.cppflags='-I<mpfrdir>/src -I<gmpdir>' -Dmpfr.libs='<mpfrdir>/src/.libs/libmpfr.a <gmpdir>/.libs/libgmp.a' -Dmpfr.build=<arch>`
 
 Where `<arch>` is the architecture and OS of system you wish to support (e.g. "x86\_64-linux").
 
