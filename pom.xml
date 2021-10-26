@@ -9,7 +9,7 @@
     <dependency>
       <groupId>org.fusesource.hawtjni</groupId>
       <artifactId>hawtjni-runtime</artifactId>
-      <version>1.10</version>
+      <version>1.17</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -55,8 +55,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.0</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -73,8 +73,8 @@
       </plugin>
       <plugin>
         <groupId>org.fusesource.hawtjni</groupId>
-        <artifactId>maven-hawtjni-plugin</artifactId>
-        <version>1.10</version>
+        <artifactId>hawtjni-maven-plugin</artifactId>
+        <version>1.17</version>
         <executions>
           <execution>
             <goals>
