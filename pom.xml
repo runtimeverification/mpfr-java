@@ -9,7 +9,7 @@
     <dependency>
       <groupId>org.fusesource.hawtjni</groupId>
       <artifactId>hawtjni-runtime</artifactId>
-      <version>1.17</version>
+      <version>1.18</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -74,7 +74,7 @@
       <plugin>
         <groupId>org.fusesource.hawtjni</groupId>
         <artifactId>hawtjni-maven-plugin</artifactId>
-        <version>1.17</version>
+        <version>1.18</version>
         <executions>
           <execution>
             <goals>
@@ -116,7 +116,7 @@
         <plugins>
           <plugin>
             <groupId>org.fusesource.hawtjni</groupId>
-            <artifactId>maven-hawtjni-plugin</artifactId>
+            <artifactId>hawtjni-maven-plugin</artifactId>
             <configuration>
               <configureArgs>
                 <arg>LIBS=${mpfr.libs}</arg>
@@ -135,7 +135,7 @@
         <plugins>
           <plugin>
             <groupId>org.fusesource.hawtjni</groupId>
-            <artifactId>maven-hawtjni-plugin</artifactId>
+            <artifactId>hawtjni-maven-plugin</artifactId>
             <configuration>
               <osgiPlatforms>
                 <osgiPlatform>osname=MacOS;processor=x86-64</osgiPlatform>

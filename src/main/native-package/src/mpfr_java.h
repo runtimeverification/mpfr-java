@@ -3,5 +3,7 @@
 #define INCLUDED_PLATFORM_H
 
 #include <mpfr.h>
+#include <stdlib.h>
+#include <string.h>
 
-#endif // INCLUDED_PLATFORM_H
+#endif  // INCLUDED_PLATFORM_H
