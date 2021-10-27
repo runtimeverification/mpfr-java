@@ -1,0 +1,20 @@
+name: "Test"
+on: [push, pull_request]
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-11]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Download dependency sources
+      run: ./src/main/scripts/ci-download.sh
+
+    - name: Install Homebrew dependencies
+      if: runner.os == 'macOS'
+      run: brew install automake
+
+    - name: Build and test
+      run: ./src/main/scripts/ci-build.sh 2
