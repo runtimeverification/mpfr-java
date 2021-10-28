@@ -2,9 +2,22 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kframework.mpfr_java</groupId>
   <artifactId>mpfr_java</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <name>HawtJNI MPFR Java Bindings</name>
-  
+
+  <distributionManagement>
+    <repository>
+      <id>runtime.verification</id>
+      <name>Runtime Verification Repository</name>
+      <url>s3://runtimeverificationmaven/internal</url>
+    </repository>
+    <snapshotRepository>
+      <id>runtime.verification.snapshots</id>
+      <name>Runtime Verification Snapshot Repository</name>
+      <url>s3://runtimeverificationmaven/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.fusesource.hawtjni</groupId>
