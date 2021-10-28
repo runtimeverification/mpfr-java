@@ -18,3 +18,9 @@ jobs:
 
     - name: Build and test
       run: ./src/main/scripts/ci-build.sh 2
+
+    - name: Upload built artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: mpfr_java-${{ runner.os }}
+        path: target/*.jar
