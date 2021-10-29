@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kframework.mpfr_java</groupId>
   <artifactId>mpfr_java</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
   <name>HawtJNI MPFR Java Bindings</name>
 
   <dependencies>
@@ -50,6 +50,13 @@
   </properties>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>com.github.seahen</groupId>
+        <artifactId>maven-s3-wagon</artifactId>
+        <version>1.3.3</version>
+     </extension>
+    </extensions>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
