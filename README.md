@@ -75,6 +75,32 @@ statically-linked versions of the library. To do so from a clean checkout:
 The `ci-build.sh` script accepts a single optional parameter; the number of jobs
 to run in parallel when building GMP and MPFR.
 
+## Deployment
+
+To deploy a new version of the library to Maven:
+
+```console
+rm -rf vendor && mvn clean
+./src/main/scripts/ci-download.sh
+./src/main/scripts/ci-build.sh
+
+mvn deploy:deploy-file                  \
+  -DpomFile=pom.xml                     \
+  -Dfile=target/mpfr_java-1.2.jar       \
+  -Dfiles=target/mpfr_java-1.2-$OS.jar  \
+  -Dclassifiers=$OS                     \
+  -Dtypes=jar                           \
+  -Durl='s3://$S3_URL'                  \
+  -DrepositoryId=$BUCKET_ID
+```
+
+You will need appropriate values of `$S3_URL` and `$BUCKET_ID` for your Maven
+repository, as well as a `settings.xml` configured with AWS keys for your Maven
+installation.
+
+This is currently a manual process, and must be repeated for each supported
+value of `$OS` (`linux64`, `osx64`, `osx64-arm` etc.).
+
 ## Feedback
 
 If you have issues or questions regarding the project, please create an issue in
