@@ -81,8 +81,8 @@ To deploy a new version of the library to Maven:
 
 ```console
 rm -rf vendor && mvn clean
-./ci-download.sh
-./ci-build.sh
+./src/main/scripts/ci-download.sh
+./src/main/scripts/ci-build.sh
 
 mvn deploy:deploy-file                  \
   -DpomFile=pom.xml                     \
