@@ -99,7 +99,7 @@ repository, as well as a `settings.xml` configured with AWS keys for your Maven
 installation.
 
 This is currently a manual process, and must be repeated for each supported
-value of `$OS` (`linux64`, `macos`, `macos-arm` etc.).
+value of `$OS` (`linux64`, `osx64`, `osx64-arm` etc.).
 
 ## Feedback
 
