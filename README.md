@@ -77,6 +77,22 @@ to run in parallel when building GMP and MPFR.
 
 ## Deployment
 
+### Linux 64-bit Target
+
+To ensure the pre-built native code links agains a suitably old version of libc,
+the binaries should be built on **Ubuntu Bionic (18.04)**. A Dockerfile is
+provided to do so:
+
+```console
+docker build -t mpfr-bionic .
+docker run -v `pwd`/output:/output mpfr-bionic
+```
+
+Then, when deploying, use the generated files in `output/` rather than
+`target/`.
+
+### Maven
+
 To deploy a new version of the library to Maven:
 
 ```console
