@@ -1,5 +1,7 @@
+.m2/
 .classpath
 .project
 .settings
 target
 vendor/
+output/
