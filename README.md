@@ -85,7 +85,7 @@ provided to do so:
 
 ```console
 docker build -t mpfr-bionic .
-docker run -v `pwd`/output:/output mpfr-bionic
+docker run --rm -it -v `pwd`/output:/output mpfr-bionic $(id -u) $(id -g)
 ```
 
 Then, when deploying, use the generated files in `output/` rather than

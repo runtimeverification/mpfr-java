@@ -25,4 +25,4 @@ ENV PATH="/src/apache-maven-3.8.3/bin:${PATH}"
 VOLUME /output
 
 WORKDIR /src
-CMD ["src/main/scripts/build-linux64.sh"]
+ENTRYPOINT ["src/main/scripts/build-linux64.sh"]
