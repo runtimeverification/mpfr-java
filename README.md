@@ -83,7 +83,7 @@ To ensure the pre-built native code links agains a suitably old version of libc,
 the binaries should be built on **Ubuntu Bionic (18.04)**. A Dockerfile is
 provided to do so:
 
-```console
+```shell
 docker build -t mpfr-bionic .
 docker run --rm -it -v `pwd`/output:/output mpfr-bionic $(id -u) $(id -g)
 ```
@@ -91,19 +91,57 @@ docker run --rm -it -v `pwd`/output:/output mpfr-bionic $(id -u) $(id -g)
 Then, when deploying, use the generated files in `output/` rather than
 `target/`.
 
+### MacOS Target
+
+When deploying for MacOS, limitations with HawtJNI's packaging structure mean
+that only **one** native JAR can be uploaded for the same OS identifier (`osx`).
+To support both ARM and Intel Macs, the JNi libraries for both platforms need to
+be combined into a universal library using `lipo`:
+
+```shell
+# On ARM Mac
+./src/main/scripts/ci-download.sh && ./src/main/scripts/ci-build.sh
+mkdir temp
+cd temp
+cp ../target/mpfr_java-1.4-osx.jar .
+unzip mpfr_java-1.4-osx.jar
+mv META-INF/native/osx64/libmpfr_java.jnilib libmpfr_java_arm.jnilib
+
+# On Intel Mac
+./src/main/scripts/ci-download.sh && ./src/main/scripts/ci-build.sh
+mkdir temp
+cd temp
+cp ../target/mpfr_java-1.4-osx.jar .
+unzip mpfr_java-1.4-osx.jar
+mv META-INF/native/osx64/libmpfr_java.jnilib libmpfr_java_x86.jnilib
+
+# ... copy _x86, _arm .jnilib files to same machine
+lipo -create -output libmpfr_java.jnilib \
+  libmpfr_java_arm.jnilib libmpfr_java_x86.jnilib
+
+# Verify that the output is a universal library
+file libmpfr_java.jnilib
+
+mv libmpfr_java.jnilib META-INF/native/osx64
+jar cf mpfr_java-1.4-osx.jar META-INF
+cp mpfr_java-1.4-osx.jar ../target
+
+# Deploy following instructions below...
+```
+
 ### Maven
 
 To deploy a new version of the library to Maven:
 
-```console
+```shell
 rm -rf vendor && mvn clean
 ./src/main/scripts/ci-download.sh
 ./src/main/scripts/ci-build.sh
 
 mvn deploy:deploy-file                  \
   -DpomFile=pom.xml                     \
-  -Dfile=target/mpfr_java-1.2.jar       \
-  -Dfiles=target/mpfr_java-1.2-$OS.jar  \
+  -Dfile=target/mpfr_java-1.4.jar       \
+  -Dfiles=target/mpfr_java-1.4-$OS.jar  \
   -Dclassifiers=$OS                     \
   -Dtypes=jar                           \
   -Durl='s3://$S3_URL'                  \
